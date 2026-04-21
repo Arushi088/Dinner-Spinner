@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dinner Spinner 🎡</title>
+
+  <style>
+    body {
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    #pointer {
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 30px solid black;
+      margin: 10px auto;
+    }
+
+    .wheel-container {
+      margin: 30px auto;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      border: 8px solid white;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      transition: transform 4s ease-out;
+      position: relative;
+    }
+
+    .label {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform-origin: 0 0;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      background: #e26e224;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    input {
+      padding: 8px;
+      border-radius: 10px;
+      border: none;
+    }
+
+    #result {
+      margin-top: 15px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Arushi’s Dinner Destiny 🍜</h1>
+
+<div id="pointer"></div>
+
+<div class="wheel-container">
+  <div class="wheel" id="wheel"></div>
+</div>
+
+<button onclick="spin()">Spin 🎡</button>
+<br>
+
+<h2 id="result"></h2>
+
+<audio id="tick" src="sounds/tick.mp3"></audio>
+<audio id="win" src="sounds/win.mp3"></audio>
+
+<script>
+let dinners = ["Pasta", "Maggi", "Paneer", "Dosa", "Pizza", "Rajma"];
+
+const wheel = document.getElementById("wheel");
+const result = document.getElementById("result");
+
+function drawWheel() {
+  const n = dinners.length;
+  const angle = 360 / n;
+
+  // 🎨 perfect equal slices using conic-gradient
+  let gradient = "conic-gradient(";
+  for (let i = 0; i < n; i++) {
+    let color = i % 2 === 0 ? "#d9548a" : "#eb9ec2";
+    gradient += `${color} ${i * angle}deg ${(i + 1) * angle}deg,`;
+  }
+  gradient = gradient.slice(0, -1) + ")";
+
+  wheel.style.background = gradient;
+
+  // clear old labels
+  document.querySelectorAll(".label").forEach(e => e.remove());
+
+  // add labels
+  dinners.forEach((item, i) => {
+    const label = document.createElement("div");
+    label.className = "label";
+    label.innerText = item;
+
+    const rotate = i * angle + angle / 2;
+
+    label.style.transform = `rotate(${rotate}deg) translate(100px) rotate(90deg)`;
+
+    wheel.appendChild(label);
+  });
+}
+
+function spin() {
+  const n = dinners.length;
+  const angle = 360 / n;
+
+  const randomDeg = Math.floor(3600 + Math.random() * 360);
+  wheel.style.transition = "none";
+  wheel.style.transform = "rotate(0deg)";
+
+  setTimeout(() => {
+  wheel.style.transition = "transform 4s ease-out";
+  wheel.style.transform = `rotate(${randomDeg}deg)`;
+  }, 50);
+
+  const actual = randomDeg % 360;
+  const index = Math.floor((360 - actual) / angle) % n;
+
+// play tick sound every 120ms for 4 seconds
+let tickInterval = setInterval(() => {
+ let tick = document.getElementById("tick").cloneNode();
+  tick.play().catch(() => {});
+}, 100);
+
+setTimeout(() => {
+  clearInterval(tickInterval);
+  let win = document.getElementById("win");
+  win.currentTime = 0;
+  win.play().catch(() => {});
+
+  result.innerText = `You got: ${dinners[index]}!`;
+}, 4000);
+
+}
+
+drawWheel();
+</script>
+
+</body>
+</html>
